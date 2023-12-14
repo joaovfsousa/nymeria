@@ -37,5 +37,10 @@ export async function start(callback: OnChangeMeetingStatusCallback) {
 
   await app.start();
 
+  process.on("SIGINT", async () => {
+    console.log(await app.stop());
+    console.log("Slack app stopped");
+  });
+
   console.log("Slack app is running!");
 }
