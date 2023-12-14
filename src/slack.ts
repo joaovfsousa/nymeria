@@ -22,6 +22,10 @@ export async function start(callback: OnChangeMeetingStatusCallback) {
     const { event } = payload as SlackUserHuddleChangedEventPayload;
     const huddleState = event.user.profile.huddle_state;
 
+    if (event.user.id !== process.env.SLACK_USER_ID) {
+      return;
+    }
+
     if (huddleState === HuddleState.ON) {
       callback(MeetingStatus.ON);
     } else if (huddleState === HuddleState.OFF) {

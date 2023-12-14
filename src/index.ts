@@ -4,12 +4,20 @@ config({
 });
 
 import { start as startSlackIntegration } from "./slack";
-import { MeetingStatus } from "./types";
+import { App, MeetingStatus } from "./types";
 
-function changeMeetingStatusCallback(status: MeetingStatus) {
-  console.log("Status changed to: ", status);
+const statusByApp: Record<App, MeetingStatus> = {
+  [App.SLACK]: MeetingStatus.OFF,
+  [App.TEAMS]: MeetingStatus.OFF,
+};
+
+function changeMeetingStatusCallback(app: App, status: MeetingStatus) {
+  statusByApp[app] = status;
+  console.log(`${app} status changed to: `, status);
 }
 
 (async () => {
-  await startSlackIntegration(changeMeetingStatusCallback);
+  await startSlackIntegration(
+    changeMeetingStatusCallback.bind(this, App.SLACK),
+  );
 })();
