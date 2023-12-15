@@ -27,9 +27,9 @@ export async function start(callback: OnChangeMeetingStatusCallback) {
     }
 
     if (huddleState === HuddleState.ON) {
-      callback(MeetingStatus.ON);
+      callback(MeetingStatus.Busy);
     } else if (huddleState === HuddleState.OFF) {
-      callback(MeetingStatus.OFF);
+      callback(MeetingStatus.Free);
     } else {
       console.warn("Unknown huddle state: ", huddleState);
     }
@@ -38,7 +38,7 @@ export async function start(callback: OnChangeMeetingStatusCallback) {
   await app.start();
 
   process.on("SIGINT", async () => {
-    console.log(await app.stop());
+    await app.stop();
     console.log("Slack app stopped");
   });
 

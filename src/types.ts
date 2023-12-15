@@ -1,11 +1,12 @@
 export enum MeetingStatus {
-  OFF = "off",
-  ON = "on",
+  Busy = "busy",
+  Maybe = "maybe",
+  Free = "free",
 }
 
 export enum App {
-  SLACK = "Slack",
-  TEAMS = "Teams",
+  Slack = "Slack",
+  Teams = "Teams",
 }
 
 export type OnChangeMeetingStatusCallback = (status: MeetingStatus) => unknown;
