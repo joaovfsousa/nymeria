@@ -13,13 +13,20 @@ export const startHttpServer = (getStatus: () => Promise<MeetingStatus>) => {
 
   app.use(express.raw({ type: "*/*" }));
 
-  app.use((req, _, next) => {
-    console.log(new Date().toISOString(), req.method, req.url);
-    next();
+  app.use(async (req, _, next) => {
+    console.log("Request: ", new Date().toISOString(), req.method, req.url);
+    await next();
   });
 
-  app.get("/led-status", async (_, res) => {
-    return res.status(200).send(await getStatus());
+  app.get("/led-status", async (req, res) => {
+    const status = await getStatus();
+    console.log(
+      `Response: ${status}`,
+      new Date().toISOString(),
+      req.method,
+      req.url,
+    );
+    return res.status(200).send(status);
   });
 
   const server = app.listen(80, () => {
