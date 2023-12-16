@@ -7,23 +7,41 @@ config({
   override: true,
 });
 
+let status = MeetingStatus.Free;
+
 async function getCurrentStatus() {
-  const execa = (await import("execa")).execa;
+  try {
+    const execa = (await import("execa")).execa;
 
-  const { stdout } = await execa("ioreg", ["-l"], {
-    shell: true,
-    stdout: "pipe",
-  });
+    const { stdout } = await execa("ioreg", ["-l"], {
+      shell: true,
+      stdout: "pipe",
+    });
 
-  const { stdout: grepStdout } = await execa("grep", ["IOAudioEngineState"], {
-    input: stdout,
-    stdout: "pipe",
-    shell: true,
-  });
+    const { stdout: grepStdout } = await execa(
+      "grep",
+      ["-o", "'IOAudioEngineState\" = 1'"],
+      {
+        input: stdout,
+        stdout: "pipe",
+        shell: true,
+      },
+    );
 
-  return grepStdout.includes("1") ? MeetingStatus.Busy : MeetingStatus.Free;
+    status = grepStdout.length ? MeetingStatus.Busy : MeetingStatus.Free;
+  } catch (e) {
+    status = MeetingStatus.Free;
+  }
 }
 
-(() => {
-  startHttpServer(getCurrentStatus);
+function getStatus() {
+  setTimeout(async () => {
+    await getCurrentStatus();
+  }, 10000);
+  return status;
+}
+
+(async () => {
+  await getCurrentStatus();
+  startHttpServer(getStatus);
 })();

@@ -2,7 +2,7 @@ import express from "express";
 import cors from "cors";
 import { MeetingStatus } from "./types";
 
-export const startHttpServer = (getStatus: () => Promise<MeetingStatus>) => {
+export const startHttpServer = (getStatus: () => MeetingStatus) => {
   const app = express();
 
   app.use(
@@ -15,11 +15,11 @@ export const startHttpServer = (getStatus: () => Promise<MeetingStatus>) => {
 
   app.use(async (req, _, next) => {
     console.log("Request: ", new Date().toISOString(), req.method, req.url);
-    await next();
+    next();
   });
 
   app.get("/led-status", async (req, res) => {
-    const status = await getStatus();
+    const status = getStatus();
     console.log(
       `Response: ${status}`,
       new Date().toISOString(),
