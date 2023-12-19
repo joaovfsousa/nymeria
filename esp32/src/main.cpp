@@ -1,6 +1,6 @@
 #include <Arduino.h>
 #include "WiFi.h"
-#include "HTTPClient.h"
+#include "ESPAsyncWebServer.h"
 
 int RED = 2;
 int YELLOW = 4;
@@ -9,12 +9,15 @@ int GREEN = 5;
 const char *ssid = "your_ssid_here";
 const char *password = "your_password_here";
 
-HTTPClient http;
-
 int currentLed = GREEN;
 int areAllLedsOn = 0;
 
-String url = "http://192.168.0.111/led-status";
+AsyncWebServer server(80);
+
+constexpr unsigned int str2int(char *str, int h = 0)
+{
+  return !str[h] ? 5381 : (str2int(str, h + 1) * 33) ^ str[h];
+}
 
 void turnOnGreen()
 {
@@ -77,6 +80,9 @@ void connectToWifi()
   }
 
   digitalWrite(LED_BUILTIN, LOW);
+
+  Serial.print("Connected to the WiFi network, IP: ");
+  Serial.println(WiFi.localIP());
 }
 
 void setup()
@@ -87,7 +93,35 @@ void setup()
   pinMode(5, OUTPUT);
   pinMode(LED_BUILTIN, OUTPUT);
   connectToWifi();
-  turnOnYellow();
+
+  turnOnGreen();
+
+  server.on(
+      "/change-status",
+      HTTP_POST,
+      [](AsyncWebServerRequest *request) {},
+      NULL,
+      [](AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t index, size_t total)
+      {
+        int hash = str2int((char *)data);
+
+        switch (hash)
+        {
+        case str2int("free"):
+          turnOnGreen();
+          break;
+        case str2int("maybe"):
+          turnOnYellow();
+          break;
+        case str2int("busy"):
+          turnOnRed();
+          break;
+        }
+
+        request->send(204);
+      });
+
+  server.begin();
 }
 
 void loop()
@@ -96,36 +130,4 @@ void loop()
   {
     connectToWifi();
   }
-
-  http.setTimeout(10000);
-  http.setConnectTimeout(10000);
-  http.begin(url.c_str());
-
-  int httpResCode = http.GET();
-
-  if (httpResCode == 200)
-  {
-    String payload = http.getString();
-    if (payload == "free")
-    {
-      turnOnGreen();
-    }
-    else if (payload == "maybe")
-    {
-      turnOnYellow();
-    }
-    else if (payload == "busy")
-    {
-      turnOnRed();
-    }
-  }
-  else
-  {
-    Serial.println(httpResCode);
-    turnOnYellow();
-  }
-
-  http.end();
-
-  delay(15000);
 };
