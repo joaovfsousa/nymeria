@@ -1,13 +1,6 @@
-import { config } from "dotenv";
-
 import { MeetingStatus } from "./types";
-import { startHttpServer } from "./http-server";
 
-config({
-  override: true,
-});
-
-let status = MeetingStatus.Free;
+let lastStatus: MeetingStatus;
 
 async function getCurrentStatus() {
   try {
@@ -28,20 +21,40 @@ async function getCurrentStatus() {
       },
     );
 
-    status = grepStdout.length ? MeetingStatus.Busy : MeetingStatus.Free;
+    return grepStdout.length ? MeetingStatus.Busy : MeetingStatus.Free;
   } catch (e) {
-    status = MeetingStatus.Free;
+    return MeetingStatus.Free;
   }
 }
 
-function getStatus() {
-  setTimeout(async () => {
-    await getCurrentStatus();
-  }, 10000);
-  return status;
+async function loop() {
+  const newStatus = await getCurrentStatus();
+
+  if (newStatus !== lastStatus) {
+    console.log(`${new Date().toISOString()}: Current status: ${newStatus}`);
+
+    try {
+      await fetch("http://192.168.0.150:80/change-status", {
+        method: "POST",
+        headers: {
+          contentType: "text/plain",
+        },
+        body: newStatus,
+      });
+    } catch (e) {
+      console.error(
+        `${new Date().toISOString()}: Error on update esp32: ${JSON.stringify(
+          e,
+        )}`,
+      );
+    }
+
+    lastStatus = newStatus;
+  }
 }
 
 (async () => {
-  await getCurrentStatus();
-  startHttpServer(getStatus);
+  while (1) {
+    await loop();
+  }
 })();
