@@ -1,15 +1,25 @@
 import { MeetingStatus } from "./types";
 
+function sleep(ms: number) {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
+}
+
 let lastStatus: MeetingStatus;
 
 async function getCurrentStatus() {
   try {
     const execa = (await import("execa")).execa;
 
-    const { stdout } = await execa("ioreg", ["-l"], {
-      shell: true,
-      stdout: "pipe",
-    });
+    const { stdout } = await execa(
+      "ioreg",
+      ["-c", "AppleUSBAudioEngine", "-r"],
+      {
+        shell: true,
+        stdout: "pipe",
+      },
+    );
 
     const { stdout: grepStdout } = await execa(
       "grep",
@@ -51,6 +61,8 @@ async function loop() {
 
     lastStatus = newStatus;
   }
+
+  await sleep(15000);
 }
 
 (async () => {
