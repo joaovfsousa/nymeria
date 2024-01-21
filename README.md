@@ -12,7 +12,7 @@ of radio stations' "On air" signs.
 
 Indicate to people wanting to enter your office if you are occupied in a meeting or recording.
 
-## How
+## How ?
 
 [MacOS] Uses [ioreg](https://developer.apple.com/library/archive/documentation/DeviceDrivers/Conceptual/IOKitFundamentals/TheRegistry/TheRegistry.html)
 to identify if the microphone is currently being used. That information will be served by an HTTP API written in Typescript.
