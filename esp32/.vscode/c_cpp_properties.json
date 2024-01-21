@@ -8,7 +8,6 @@
         {
             "name": "PlatformIO",
             "includePath": [
-                "/Users/joaovfsousa/Projects/nymeria/esp32/include",
                 "/Users/joaovfsousa/Projects/nymeria/esp32/src",
                 "/Users/joaovfsousa/Projects/nymeria/esp32/.pio/libdeps/esp32doit-devkit-v1/ESPAsyncWebServer-esphome/src",
                 "/Users/joaovfsousa/.platformio/packages/framework-arduinoespressif32/libraries/WiFi/src",
@@ -240,7 +239,6 @@
             "browse": {
                 "limitSymbolsToIncludedHeaders": true,
                 "path": [
-                    "/Users/joaovfsousa/Projects/nymeria/esp32/include",
                     "/Users/joaovfsousa/Projects/nymeria/esp32/src",
                     "/Users/joaovfsousa/Projects/nymeria/esp32/.pio/libdeps/esp32doit-devkit-v1/ESPAsyncWebServer-esphome/src",
                     "/Users/joaovfsousa/.platformio/packages/framework-arduinoespressif32/libraries/WiFi/src",
@@ -471,7 +469,7 @@
                 ]
             },
             "defines": [
-                "PLATFORMIO=60111",
+                "PLATFORMIO=60113",
                 "ARDUINO_ESP32_DEV",
                 "HAVE_CONFIG_H",
                 "MBEDTLS_CONFIG_FILE=\"mbedtls/esp_config.h\"",
