@@ -4,7 +4,7 @@
 
 :root {
   color: white;
-
+  font-size: 14px;
   font-family:
     ui-sans-serif,
     system-ui,
@@ -15,4 +15,9 @@
   outline: none;
   user-select: none;
   cursor: default;
+}
+
+html,
+body {
+  padding: 4px;
 }

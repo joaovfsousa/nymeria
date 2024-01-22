@@ -1,7 +1,20 @@
+import { MenuItem } from "./components/MenuItem";
+import { Separator } from "./components/Separator";
+
 function App() {
   return (
-    <div className="h-lvh flex flex-col justify-center items-center text-white text-sm">
-      <h1>Welcome to Nymeria!</h1>
+    <div className="text-white">
+      <MenuItem title="Chang" />
+      <Separator />
+      <MenuItem title="Settings" />
+      <Separator />
+      <MenuItem title="Gigantic" />
+      <Separator />
+      <MenuItem title="Text" />
+      <Separator />
+      <MenuItem title="Text" />
+      <Separator />
+      <MenuItem title="Text" />
     </div>
   );
 }
