@@ -13,6 +13,12 @@ fn main() {
     let tray = SystemTray::new().with_menu(tray_menu);
 
     tauri::Builder::default()
+        .setup(|app| {
+            #[cfg(target_os = "macos")]
+            app.set_activation_policy(tauri::ActivationPolicy::Accessory);
+
+            Ok(())
+        })
         .plugin(tauri_plugin_positioner::init())
         .system_tray(tray)
         .on_system_tray_event(handle_system_tray_event)
