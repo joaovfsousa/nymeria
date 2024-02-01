@@ -8,7 +8,7 @@ fn setup_vibrancy(window: &tauri::Window) -> Result<(), ()> {
         &window,
         NSVisualEffectMaterial::HudWindow,
         Some(NSVisualEffectState::Active),
-        None,
+        Some(7.0),
     );
 
     if result.is_err() {
