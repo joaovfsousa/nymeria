@@ -1,8 +1,10 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
+mod client;
 mod tray;
 
+use client::{get_state, quit, set_device_state};
 use tauri::{SystemTray, SystemTrayMenu};
 use tauri_plugin_positioner;
 use tray::handle_system_tray_event;
@@ -19,6 +21,7 @@ fn main() {
 
             Ok(())
         })
+        .invoke_handler(tauri::generate_handler![set_device_state, get_state, quit])
         .plugin(tauri_plugin_positioner::init())
         .system_tray(tray)
         .on_system_tray_event(handle_system_tray_event)
