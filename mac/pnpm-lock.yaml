@@ -6,7 +6,7 @@ settings:
 
 dependencies:
   '@tauri-apps/api':
-    specifier: ^1.5.2
+    specifier: ^1.5.3
     version: 1.5.3
   react:
     specifier: ^18.2.0
@@ -17,7 +17,7 @@ dependencies:
 
 devDependencies:
   '@tauri-apps/cli':
-    specifier: ^1.5.8
+    specifier: ^1.5.9
     version: 1.5.9
   '@types/react':
     specifier: ^18.2.15
