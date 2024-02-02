@@ -1,42 +1,37 @@
 use tauri::{command, AppHandle};
 
-pub enum State {
-    Free,
-    Maybe,
-    Busy,
-}
+const LIGHT_DEVICE_ADDRESS: &'static str = "http://192.168.0.150:80";
 
-impl State {
-    fn from_str(s: &str) -> State {
-        match s {
-            "free" => State::Free,
-            "maybe" => State::Maybe,
-            "busy" => State::Busy,
-            _ => panic!("Invalid state"),
-        }
-    }
+fn get_url(path: &String) -> String {
+    let mut url = LIGHT_DEVICE_ADDRESS.to_owned();
 
-    fn as_str(&self) -> &str {
-        match self {
-            State::Free => "free",
-            State::Maybe => "maybe",
-            State::Busy => "busy",
-        }
-    }
+    url.push_str("/");
+    url.push_str(path);
+
+    url
 }
 
 #[command]
 pub fn set_device_state(device_id: String, state: String) {
-    let state = State::from_str(&state);
-
-    // TODO: implement the server call
     println!("Setting device {} to state {}", device_id, state.as_str());
-    ()
+    let client = reqwest::blocking::Client::new();
+
+    let path = "change-status".to_string();
+
+    // path.push_str(&device_id);
+
+    let url = get_url(&path);
+
+    // Concat the constant with the device id
+    client
+        .post(url)
+        .body(state.clone())
+        .send()
+        .expect("Failed to send request");
 }
 
 #[command]
 pub fn get_state() -> String {
-    // TODO: get the state from the server
     "free".into()
 }
 

@@ -35,7 +35,7 @@ pub fn handle_system_tray_event(app: &AppHandle, event: SystemTrayEvent) {
 
             win.set_size(Size::Logical(LogicalSize {
                 width: 300.0,
-                height: 600.0,
+                height: 96.0,
             }))
             .expect("Could not set window size");
 
