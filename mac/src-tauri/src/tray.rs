@@ -30,12 +30,15 @@ pub fn handle_system_tray_event(app: &AppHandle, event: SystemTrayEvent) {
             let win = WindowBuilder::new(app, "menu", WindowUrl::App("system-tray".into()))
                 .decorations(false)
                 .transparent(true)
+                .resizable(false)
+                .always_on_top(true)
+                .focused(false)
                 .build()
                 .unwrap();
 
             win.set_size(Size::Logical(LogicalSize {
-                width: 300.0,
-                height: 96.0,
+                width: 150.0,
+                height: 76.0,
             }))
             .expect("Could not set window size");
 
@@ -51,8 +54,5 @@ pub fn handle_system_tray_event(app: &AppHandle, event: SystemTrayEvent) {
         menu.move_window(Position::TrayLeft)
             .expect("Could not move window");
         menu.show().expect("Could not show window");
-        menu.set_focus().expect("Could not focus window");
-        menu.set_always_on_top(true)
-            .expect("Could not setup always on top");
     }
 }

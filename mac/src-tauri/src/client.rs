@@ -22,7 +22,6 @@ pub fn set_device_state(device_id: String, state: String) {
 
     let url = get_url(&path);
 
-    // Concat the constant with the device id
     client
         .post(url)
         .body(state.clone())

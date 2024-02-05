@@ -1,5 +1,5 @@
 .circle {
-  --size: 40px;
+  --size: 20px;
   width: var(--size);
   height: var(--size);
   border-radius: 50%;
