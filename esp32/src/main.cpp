@@ -3,6 +3,7 @@
 #include <map>
 #include "LedController.h"
 #include "WifiHelper.h"
+#include "State.h"
 
 Led lastLedOn = Led::Green;
 
@@ -10,10 +11,7 @@ AsyncWebServer server(80);
 
 LedController ledController = LedController();
 
-constexpr unsigned int str2int(char *str, int h = 0)
-{
-  return !str[h] ? 5381 : (str2int(str, h + 1) * 33) ^ str[h];
-}
+StateController stateController = StateController();
 
 void setup()
 {
@@ -24,22 +22,51 @@ void setup()
   connectToWifi(ledController);
 
   server.on(
-      "/change-status",
+      "^\\/devices\\/([a-z0-9]+)\\/state$",
       HTTP_POST,
       [](AsyncWebServerRequest *request) {},
       NULL,
       [](AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t index, size_t total)
       {
-        std::map<std::string, Led> ledMap = {
-            {"free", Led::Green},
-            {"maybe", Led::Yellow},
-            {"busy", Led::Red}};
+        String deviceId = request->pathArg(0);
 
-        Led led = ledMap[std::string((char *)data, len)];
+        State deviceState = getStateFromString(std::string((char *)data, len));
 
-        lastLedOn = led;
+        stateController.setDeviceState(deviceId.c_str(), deviceState);
+
+        State state = stateController.getState();
+
+        Led led = getLedFromState(state);
 
         ledController.setOnly(led, LedState::On);
+        lastLedOn = led;
+
+        request->send(200, "text/plain", getStateString(state).c_str());
+      });
+
+  server.on(
+      "/state",
+      HTTP_GET,
+      [](AsyncWebServerRequest *request)
+      {
+        State state = stateController.getState();
+
+        request->send(200, "text/plain", getStateString(state).c_str());
+      });
+
+  server.on(
+      "/reset",
+      HTTP_POST,
+      [](AsyncWebServerRequest *request)
+      {
+        stateController.resetState();
+
+        State state = stateController.getState();
+
+        Led led = getLedFromState(state);
+
+        ledController.setOnly(led, LedState::On);
+        lastLedOn = led;
 
         request->send(204);
       });
