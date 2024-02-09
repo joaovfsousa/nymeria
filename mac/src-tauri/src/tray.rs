@@ -1,58 +1,45 @@
-use tauri::{AppHandle, LogicalSize, Manager, Size, SystemTrayEvent, WindowBuilder, WindowUrl};
-use tauri_plugin_positioner::{self, Position, WindowExt};
-use window_vibrancy::{apply_vibrancy, NSVisualEffectMaterial, NSVisualEffectState};
+use tauri::{
+    AppHandle, CustomMenuItem, SystemTray, SystemTrayEvent, SystemTrayMenu, SystemTrayMenuItem,
+};
 
-fn setup_vibrancy(window: &tauri::Window) -> Result<(), ()> {
-    #[cfg(target_os = "macos")]
-    let result = apply_vibrancy(
-        &window,
-        NSVisualEffectMaterial::HudWindow,
-        Some(NSVisualEffectState::Active),
-        Some(7.0),
-    );
+use crate::client::{get_state, reset, set_device_state};
 
-    if result.is_err() {
-        return Err(());
-    }
+pub fn get_tray() -> SystemTray {
+    let free = CustomMenuItem::new("free".to_string(), "🟢 Free".to_string());
+    let maybe = CustomMenuItem::new("maybe".to_string(), "🟠 Maybe".to_string());
+    let busy = CustomMenuItem::new("busy".to_string(), "🔴 Busy".to_string());
+    let reset = CustomMenuItem::new("reset".to_string(), "Reset".to_string());
+    let quit = CustomMenuItem::new("quit".to_string(), "Quit".to_string());
 
-    Ok(())
+    let tray_menu = SystemTrayMenu::new()
+        .add_item(free)
+        .add_native_item(SystemTrayMenuItem::Separator)
+        .add_item(maybe)
+        .add_native_item(SystemTrayMenuItem::Separator)
+        .add_item(busy)
+        .add_native_item(SystemTrayMenuItem::Separator)
+        .add_item(reset)
+        .add_native_item(SystemTrayMenuItem::Separator)
+        .add_item(quit);
+
+    SystemTray::new().with_menu(tray_menu)
 }
 
-pub fn handle_system_tray_event(app: &AppHandle, event: SystemTrayEvent) {
-    tauri_plugin_positioner::on_tray_event(app, &event);
-
-    let (menu, is_built) = {
-        let window = app.get_window("menu");
-
-        if let Some(win) = window {
-            (win, false)
-        } else {
-            let win = WindowBuilder::new(app, "menu", WindowUrl::App("system-tray".into()))
-                .decorations(false)
-                .transparent(true)
-                .resizable(false)
-                .always_on_top(true)
-                .focused(false)
-                .build()
-                .unwrap();
-
-            win.set_size(Size::Logical(LogicalSize {
-                width: 150.0,
-                height: 76.0,
-            }))
-            .expect("Could not set window size");
-
-            setup_vibrancy(&win).expect("Could not setup vibrancy");
-
-            (win, true)
+pub fn handle_tray_event(app: &AppHandle, event: SystemTrayEvent) {
+    match event {
+        SystemTrayEvent::MenuItemClick { id, .. } => {
+            match id.as_str() {
+                "quit" => {
+                    app.exit(0);
+                }
+                "reset" => {
+                    get_state();
+                    reset();
+                }
+                _ => set_device_state("mactray".to_string(), id),
+            }
+            println!("Menu item clicked");
         }
-    };
-
-    if menu.is_visible().unwrap() && !is_built {
-        menu.hide().expect("failed to hide window");
-    } else {
-        menu.move_window(Position::TrayLeft)
-            .expect("Could not move window");
-        menu.show().expect("Could not show window");
+        _ => {}
     }
 }

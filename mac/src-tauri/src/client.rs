@@ -1,5 +1,3 @@
-use tauri::{command, AppHandle};
-
 const LIGHT_DEVICE_ADDRESS: &'static str = "http://192.168.0.150:80";
 
 fn get_url(path: &String) -> String {
@@ -11,14 +9,19 @@ fn get_url(path: &String) -> String {
     url
 }
 
-#[command]
+fn get_client() -> reqwest::blocking::Client {
+    reqwest::blocking::Client::new()
+}
+
 pub fn set_device_state(device_id: String, state: String) {
     println!("Setting device {} to state {}", device_id, state.as_str());
-    let client = reqwest::blocking::Client::new();
+    let client = get_client();
 
-    let path = "change-status".to_string();
+    let mut path = "devices/".to_string();
 
-    // path.push_str(&device_id);
+    path.push_str(&device_id);
+
+    path.push_str("/state");
 
     let url = get_url(&path);
 
@@ -26,16 +29,31 @@ pub fn set_device_state(device_id: String, state: String) {
         .post(url)
         .body(state.clone())
         .send()
-        .expect("Failed to send request");
+        .expect("Failed to set device state");
 }
 
-#[command]
+pub fn reset() {
+    println!("Resetting device");
+
+    let client = get_client();
+
+    let url = get_url(&"reset".to_string());
+
+    client.post(url).send().expect("Failed to reset");
+}
+
 pub fn get_state() -> String {
-    "free".into()
-}
+    println!("Reading state");
 
-#[command]
-pub fn quit(app_handle: AppHandle) {
-    println!("Quitting");
-    app_handle.exit(0)
+    let client = get_client();
+
+    let url = get_url(&"state".to_string());
+
+    let res = client.get(url).send().expect("Failed to read state");
+
+    let state = res.text();
+
+    println!("State: {}", state.as_ref().unwrap());
+
+    state.unwrap()
 }

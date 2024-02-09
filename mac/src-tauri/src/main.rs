@@ -4,15 +4,10 @@
 mod client;
 mod tray;
 
-use client::{get_state, quit, set_device_state};
-use tauri::{SystemTray, SystemTrayMenu};
-use tauri_plugin_positioner;
-use tray::handle_system_tray_event;
+use tray::{get_tray, handle_tray_event};
 
 fn main() {
-    let tray_menu = SystemTrayMenu::new();
-
-    let tray = SystemTray::new().with_menu(tray_menu);
+    let tray = get_tray();
 
     tauri::Builder::default()
         .setup(|app| {
@@ -21,10 +16,8 @@ fn main() {
 
             Ok(())
         })
-        .invoke_handler(tauri::generate_handler![set_device_state, get_state, quit])
-        .plugin(tauri_plugin_positioner::init())
         .system_tray(tray)
-        .on_system_tray_event(handle_system_tray_event)
+        .on_system_tray_event(handle_tray_event)
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
