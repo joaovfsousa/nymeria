@@ -8,8 +8,6 @@ pub struct SignClient {
     client: reqwest::blocking::Client,
 }
 
-pub type Callback = Option<fn()>;
-
 pub enum Device {
     MacMic,
     MacTray,
@@ -40,7 +38,7 @@ impl SignClient {
         url
     }
 
-    pub fn set_device_state(&self, device: Device, state: State, callback: Callback) {
+    pub fn set_device_state(&self, device: Device, state: State) {
         let device_id = device.to_string();
         let state_as_string = state.to_string();
 
@@ -58,13 +56,9 @@ impl SignClient {
             Err(e) => eprintln!("Error on update: {}", e),
             _ => (),
         }
-
-        if let Some(cb) = callback {
-            cb();
-        }
     }
 
-    pub fn reset(&self, callback: Callback) {
+    pub fn reset(&self) {
         println!("Resetting device");
 
         let url = SignClient::get_url(&"reset".to_string());
@@ -73,13 +67,9 @@ impl SignClient {
             Err(e) => eprintln!("Error on reset: {}", e),
             _ => (),
         }
-
-        if let Some(cb) = callback {
-            cb();
-        }
     }
 
-    pub fn get_state(&self, callback: Callback) -> Option<State> {
+    pub fn get_state(&self) -> Option<State> {
         let url = SignClient::get_url(&"state".to_string());
 
         match self.client.get(url).send() {
@@ -89,10 +79,6 @@ impl SignClient {
             }
             Ok(res) => {
                 let state = res.text();
-
-                if let Some(cb) = callback {
-                    cb();
-                };
 
                 Some(State::from(state.unwrap()))
             }

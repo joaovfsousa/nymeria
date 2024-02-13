@@ -38,10 +38,10 @@ pub fn system_tray_event_handler(app: &AppHandle, event: SystemTrayEvent) {
                     app.exit(0);
                 }
                 "reset" => {
-                    sign_client.get_state(None);
-                    sign_client.reset(None);
+                    sign_client.get_state();
+                    sign_client.reset();
                 }
-                _ => sign_client.set_device_state(Device::MacTray, State::from(id), None),
+                _ => sign_client.set_device_state(Device::MacTray, State::from(id)),
             }
         }
         _ => {}

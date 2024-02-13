@@ -51,7 +51,7 @@ impl StateManager {
             true => {
                 if self.last_local_state == State::Free {
                     self.sign_client
-                        .set_device_state(Device::MacMic, State::Busy, None);
+                        .set_device_state(Device::MacMic, State::Busy);
                     self.last_local_state = State::Busy;
                     println!("Mic set to busy");
                 }
@@ -59,7 +59,7 @@ impl StateManager {
             false => {
                 if self.last_local_state == State::Busy {
                     self.sign_client
-                        .set_device_state(Device::MacMic, State::Free, None);
+                        .set_device_state(Device::MacMic, State::Free);
                     self.last_local_state = State::Free;
                     println!("Mic set to free");
                 }
@@ -68,7 +68,7 @@ impl StateManager {
     }
 
     pub fn update_from_sign_state(&mut self) -> &State {
-        if let Some(state) = self.sign_client.get_state(None) {
+        if let Some(state) = self.sign_client.get_state() {
             self.state = state;
         }
 
