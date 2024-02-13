@@ -2,7 +2,7 @@ use std::fmt;
 
 use crate::sign_client::{Device, SignClient};
 
-#[derive(PartialEq)]
+#[derive(PartialEq, Clone, Copy)]
 pub enum State {
     Free,
     Busy,
@@ -19,12 +19,9 @@ impl fmt::Display for State {
 
 impl From<String> for State {
     fn from(value: String) -> Self {
-        let free_string = String::from("free");
-        let busy_string = String::from("busy");
-
-        match value {
-            free_string => State::Free,
-            busy_string => State::Busy,
+        match value.as_str() {
+            "free" => State::Free,
+            "busy" => State::Busy,
             _ => State::Free,
         }
     }
@@ -56,6 +53,7 @@ impl StateManager {
                     self.sign_client
                         .set_device_state(Device::MacMic, State::Busy, None);
                     self.last_local_state = State::Busy;
+                    println!("Mic set to busy");
                     return self.update_from_sign_state();
                 }
             }
@@ -64,6 +62,7 @@ impl StateManager {
                     self.sign_client
                         .set_device_state(Device::MacMic, State::Free, None);
                     self.last_local_state = State::Free;
+                    println!("Mic set to free");
                     return self.update_from_sign_state();
                 }
             }
