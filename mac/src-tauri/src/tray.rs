@@ -2,7 +2,7 @@ use tauri::{
     AppHandle, CustomMenuItem, SystemTray, SystemTrayEvent, SystemTrayMenu, SystemTrayMenuItem,
 };
 
-use crate::client::{get_state, reset, set_device_state};
+use crate::sign_client::{Device, SignClient};
 
 pub fn get_tray() -> SystemTray {
     let free = CustomMenuItem::new("free".to_string(), "🟢 Free".to_string());
@@ -25,18 +25,20 @@ pub fn get_tray() -> SystemTray {
     SystemTray::new().with_menu(tray_menu)
 }
 
-pub fn handle_tray_event(app: &AppHandle, event: SystemTrayEvent) {
-    match event {
+pub fn get_system_tray_event_handler(
+    sign_client: SignClient,
+) -> impl for<'a> Fn(&'a AppHandle, SystemTrayEvent) {
+    move |app: &AppHandle, event: SystemTrayEvent| match event {
         SystemTrayEvent::MenuItemClick { id, .. } => {
             match id.as_str() {
                 "quit" => {
                     app.exit(0);
                 }
                 "reset" => {
-                    get_state();
-                    reset();
+                    sign_client.get_state(None);
+                    sign_client.reset(None);
                 }
-                _ => set_device_state("mactray".to_string(), id),
+                _ => sign_client.set_device_state(Device::MacTray, id, None),
             }
             println!("Menu item clicked");
         }

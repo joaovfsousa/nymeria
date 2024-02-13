@@ -21,15 +21,11 @@ async function getCurrentStatus() {
       },
     );
 
-    const { stdout: grepStdout } = await execa(
-      "grep",
-      ["-o", "'IOAudioEngineState\" = 1'"],
-      {
-        input: stdout,
-        stdout: "pipe",
-        shell: true,
-      },
-    );
+    const { stdout: grepStdout } = await execa("grep", ["-o", ""], {
+      input: stdout,
+      stdout: "pipe",
+      shell: true,
+    });
 
     return grepStdout.length ? MeetingStatus.Busy : MeetingStatus.Free;
   } catch (e) {
