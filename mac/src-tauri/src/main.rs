@@ -48,7 +48,7 @@ fn main() {
                 handle.tray_handle().set_icon(icon).unwrap();
             };
 
-            let _state_check_thread = thread::spawn(move || loop {
+            thread::spawn(move || loop {
                 state_check_thread_state_manager
                     .lock()
                     .unwrap()
@@ -57,7 +57,7 @@ fn main() {
                 thread::sleep(Duration::from_millis(1500));
             });
 
-            let _mic_check_thread = thread::spawn(move || loop {
+            thread::spawn(move || loop {
                 let is_mic_in_use = get_is_mic_in_use();
 
                 mic_check_thread_state_manager
@@ -68,7 +68,7 @@ fn main() {
                 thread::sleep(Duration::from_secs(3));
             });
 
-            let _icon_update_thread = thread::spawn(move || {
+            thread::spawn(move || {
                 let mut last_state: Option<String> = None;
 
                 let mut loop_fn = || {
