@@ -28,9 +28,13 @@ fn main() {
 
     let mic_check_thread_state_manager = state_manager.clone();
 
-    let _state_check_thread = thread::spawn(move || {
-        let _state = state_check_thread_state_manager.lock().unwrap().get_state();
-        // TODO: Update Icon
+    let _state_check_thread = thread::spawn(move || loop {
+        state_check_thread_state_manager
+            .lock()
+            .unwrap()
+            .update_from_sign_state();
+
+        thread::sleep(Duration::from_secs(3));
     });
 
     let _mic_check_thread = thread::spawn(move || loop {
