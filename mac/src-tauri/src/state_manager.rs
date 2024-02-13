@@ -46,7 +46,7 @@ impl StateManager {
         &self.state
     }
 
-    pub fn mic_usage_update(&mut self, is_mic_in_use: bool) -> &State {
+    pub fn mic_usage_update(&mut self, is_mic_in_use: bool) {
         match is_mic_in_use {
             true => {
                 if self.last_local_state == State::Free {
@@ -54,7 +54,6 @@ impl StateManager {
                         .set_device_state(Device::MacMic, State::Busy, None);
                     self.last_local_state = State::Busy;
                     println!("Mic set to busy");
-                    return self.update_from_sign_state();
                 }
             }
             false => {
@@ -63,12 +62,9 @@ impl StateManager {
                         .set_device_state(Device::MacMic, State::Free, None);
                     self.last_local_state = State::Free;
                     println!("Mic set to free");
-                    return self.update_from_sign_state();
                 }
             }
         }
-
-        self.get_state()
     }
 
     pub fn update_from_sign_state(&mut self) -> &State {

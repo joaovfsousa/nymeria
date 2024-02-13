@@ -32,23 +32,23 @@ fn main() {
             let icon_update_thread_state_manager = state_manager.clone();
 
             thread::spawn(move || loop {
+                thread::sleep(Duration::from_millis(1000));
+
                 state_check_thread_state_manager
                     .lock()
                     .unwrap()
                     .update_from_sign_state();
-
-                thread::sleep(Duration::from_millis(1500));
             });
 
             thread::spawn(move || loop {
+                thread::sleep(Duration::from_secs(3));
+
                 let is_mic_in_use = get_is_mic_in_use();
 
                 mic_check_thread_state_manager
                     .lock()
                     .unwrap()
                     .mic_usage_update(is_mic_in_use);
-
-                thread::sleep(Duration::from_secs(3));
             });
 
             let state_to_icon = |state: &State| -> Icon {
@@ -69,6 +69,8 @@ fn main() {
                 };
 
                 loop {
+                    thread::sleep(Duration::from_millis(2000));
+
                     let manager = icon_update_thread_state_manager.lock().unwrap();
                     let state = manager.get_state();
 
@@ -83,7 +85,6 @@ fn main() {
                             last_state = Some(state.to_string());
                         }
                     }
-                    thread::sleep(Duration::from_millis(1000));
                 }
             });
 
