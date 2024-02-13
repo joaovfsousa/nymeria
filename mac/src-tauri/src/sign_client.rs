@@ -1,3 +1,7 @@
+use std::fmt;
+
+use crate::state_manager::State;
+
 const LIGHT_DEVICE_ADDRESS: &'static str = "http://192.168.0.150:80";
 
 pub struct SignClient {
@@ -11,10 +15,12 @@ pub enum Device {
     MacTray,
 }
 
-fn device_to_string(device: Device) -> String {
-    match device {
-        Device::MacMic => "macmic".to_string(),
-        Device::MacTray => "mactray".to_string(),
+impl fmt::Display for Device {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            Device::MacMic => write!(f, "macmic"),
+            Device::MacTray => write!(f, "mactray"),
+        }
     }
 }
 
@@ -34,10 +40,11 @@ impl SignClient {
         url
     }
 
-    pub fn set_device_state(&self, device: Device, state: String, callback: Callback) {
-        let device_id = device_to_string(device);
+    pub fn set_device_state(&self, device: Device, state: State, callback: Callback) {
+        let device_id = device.to_string();
+        let state_as_string = state.to_string();
 
-        println!("Setting device {} to state {}", device_id, state.as_str());
+        println!("Setting device {} to state {}", device_id, state_as_string);
 
         let mut path = "devices/".to_string();
 
@@ -49,7 +56,7 @@ impl SignClient {
 
         self.client
             .post(url)
-            .body(state.clone())
+            .body(state_as_string)
             .send()
             .expect("Failed to set device state");
 
@@ -70,7 +77,7 @@ impl SignClient {
         }
     }
 
-    pub fn get_state(&self, callback: Callback) -> String {
+    pub fn get_state(&self, callback: Callback) -> State {
         println!("Reading state");
 
         let url = SignClient::get_url(&"state".to_string());
@@ -85,6 +92,6 @@ impl SignClient {
             cb();
         };
 
-        state.unwrap()
+        State::from(state.unwrap())
     }
 }
