@@ -72,9 +72,9 @@ impl StateManager {
     }
 
     pub fn update_from_sign_state(&mut self) -> &State {
-        let state = self.sign_client.get_state(None);
-
-        self.state = state;
+        if let Some(state) = self.sign_client.get_state(None) {
+            self.state = state;
+        }
 
         self.get_state()
     }

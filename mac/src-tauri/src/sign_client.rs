@@ -54,11 +54,10 @@ impl SignClient {
 
         let url = SignClient::get_url(&path);
 
-        self.client
-            .post(url)
-            .body(state_as_string)
-            .send()
-            .expect("Failed to set device state");
+        match self.client.post(url).body(state_as_string).send() {
+            Err(e) => eprintln!("Error on update: {}", e),
+            _ => (),
+        }
 
         if let Some(cb) = callback {
             cb();
@@ -70,28 +69,33 @@ impl SignClient {
 
         let url = SignClient::get_url(&"reset".to_string());
 
-        self.client.post(url).send().expect("Failed to reset");
+        match self.client.post(url).send() {
+            Err(e) => eprintln!("Error on reset: {}", e),
+            _ => (),
+        }
 
         if let Some(cb) = callback {
             cb();
         }
     }
 
-    pub fn get_state(&self, callback: Callback) -> State {
-        println!("Reading state");
-
+    pub fn get_state(&self, callback: Callback) -> Option<State> {
         let url = SignClient::get_url(&"state".to_string());
 
-        let res = self.client.get(url).send().expect("Failed to read state");
+        match self.client.get(url).send() {
+            Err(e) => {
+                eprintln!("Error on get state: {}", e);
+                None
+            }
+            Ok(res) => {
+                let state = res.text();
 
-        let state = res.text();
+                if let Some(cb) = callback {
+                    cb();
+                };
 
-        println!("State: {}", state.as_ref().unwrap());
-
-        if let Some(cb) = callback {
-            cb();
-        };
-
-        State::from(state.unwrap())
+                Some(State::from(state.unwrap()))
+            }
+        }
     }
 }

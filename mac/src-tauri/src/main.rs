@@ -13,17 +13,12 @@ use std::{
 };
 
 use mic::get_is_mic_in_use;
-use sign_client::SignClient;
 use state_manager::{State, StateManager};
 use tauri::Icon;
-use tray::{get_system_tray_event_handler, get_tray};
+use tray::{get_tray, system_tray_event_handler};
 
 fn main() {
     let tray = get_tray();
-
-    let sign_client = SignClient::new();
-
-    let on_system_tray_event = get_system_tray_event_handler(sign_client);
 
     // TODO: Handle exits, clean up threads
     tauri::Builder::default()
@@ -59,7 +54,7 @@ fn main() {
                     .unwrap()
                     .update_from_sign_state();
 
-                thread::sleep(Duration::from_secs(3));
+                thread::sleep(Duration::from_millis(1500));
             });
 
             let _mic_check_thread = thread::spawn(move || loop {
@@ -102,7 +97,7 @@ fn main() {
             Ok(())
         })
         .system_tray(tray)
-        .on_system_tray_event(on_system_tray_event)
+        .on_system_tray_event(system_tray_event_handler)
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

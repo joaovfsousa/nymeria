@@ -28,27 +28,23 @@ pub fn get_tray() -> SystemTray {
     SystemTray::new().with_menu(tray_menu)
 }
 
-pub fn get_system_tray_event_handler(
-    sign_client: SignClient,
-) -> impl for<'a> Fn(&'a AppHandle, SystemTrayEvent) {
-    move |app: &AppHandle, event: SystemTrayEvent| {
-        println!("System tray event");
+pub fn system_tray_event_handler(app: &AppHandle, event: SystemTrayEvent) {
+    match event {
+        SystemTrayEvent::MenuItemClick { id, .. } => {
+            let sign_client = SignClient::new();
 
-        match event {
-            SystemTrayEvent::MenuItemClick { id, .. } => {
-                match id.as_str() {
-                    "quit" => {
-                        app.exit(0);
-                    }
-                    "reset" => {
-                        sign_client.get_state(None);
-                        sign_client.reset(None);
-                    }
-                    _ => sign_client.set_device_state(Device::MacTray, State::from(id), None),
+            match id.as_str() {
+                "quit" => {
+                    app.exit(0);
                 }
-                println!("Menu item clicked");
+                "reset" => {
+                    sign_client.get_state(None);
+                    sign_client.reset(None);
+                }
+                _ => sign_client.set_device_state(Device::MacTray, State::from(id), None),
             }
-            _ => {}
+            println!("Menu item clicked");
         }
+        _ => {}
     }
 }
