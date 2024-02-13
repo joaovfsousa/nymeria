@@ -20,33 +20,16 @@ use tray::{get_tray, system_tray_event_handler};
 fn main() {
     let tray = get_tray();
 
-    // TODO: Handle exits, clean up threads
     tauri::Builder::default()
         .setup(|app| {
             #[cfg(target_os = "macos")]
             app.set_activation_policy(tauri::ActivationPolicy::Accessory);
 
-            let state_to_icon = |state: &State| -> Icon {
-                match state {
-                    State::Free => Icon::Raw(include_bytes!("../icons/states/free.png").to_vec()),
-                    State::Busy => Icon::Raw(include_bytes!("../icons/states/busy.png").to_vec()),
-                }
-            };
-
             let state_manager = Arc::new(Mutex::new(StateManager::new()));
 
             let state_check_thread_state_manager = state_manager.clone();
-
             let mic_check_thread_state_manager = state_manager.clone();
-
             let icon_update_thread_state_manager = state_manager.clone();
-
-            let handle = app.handle().clone();
-
-            let change_icon = move |state: &State| {
-                let icon = state_to_icon(state);
-                handle.tray_handle().set_icon(icon).unwrap();
-            };
 
             thread::spawn(move || loop {
                 state_check_thread_state_manager
@@ -68,10 +51,24 @@ fn main() {
                 thread::sleep(Duration::from_secs(3));
             });
 
+            let state_to_icon = |state: &State| -> Icon {
+                match state {
+                    State::Free => Icon::Raw(include_bytes!("../icons/states/free.png").to_vec()),
+                    State::Busy => Icon::Raw(include_bytes!("../icons/states/busy.png").to_vec()),
+                }
+            };
+
+            let handle = app.handle().clone();
+
             thread::spawn(move || {
                 let mut last_state: Option<String> = None;
 
-                let mut loop_fn = || {
+                let change_icon = move |state: &State| {
+                    let icon = state_to_icon(state);
+                    handle.tray_handle().set_icon(icon).unwrap();
+                };
+
+                loop {
                     let manager = icon_update_thread_state_manager.lock().unwrap();
                     let state = manager.get_state();
 
@@ -86,10 +83,6 @@ fn main() {
                             last_state = Some(state.to_string());
                         }
                     }
-                };
-
-                loop {
-                    loop_fn();
                     thread::sleep(Duration::from_millis(1000));
                 }
             });
