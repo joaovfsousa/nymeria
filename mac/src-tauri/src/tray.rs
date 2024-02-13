@@ -43,7 +43,6 @@ pub fn system_tray_event_handler(app: &AppHandle, event: SystemTrayEvent) {
                 }
                 _ => sign_client.set_device_state(Device::MacTray, State::from(id), None),
             }
-            println!("Menu item clicked");
         }
         _ => {}
     }
