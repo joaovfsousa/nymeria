@@ -1,0 +1,25 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color: white;
+  font-size: 14px;
+  font-family:
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont;
+
+  border-radius: 7px;
+  outline: none;
+  user-select: none;
+  cursor: default;
+}
+
+body {
+  height: 100vh;
+  border: #626466 solid 1px;
+  border-radius: 7px;
+  padding: 4px;
+}
