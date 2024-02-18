@@ -22,11 +22,11 @@ every 15 seconds.
 
 ## Next steps
 
-- [ ] Change MacOS agent to run as an tray application
+- [x] Change MacOS agent to run as an tray application
 - [ ] Use environment vars to config esp32's code build
-- [ ] Allow manually changing the status in the MacOS app
+- [x] Allow manually changing the status in the MacOS app
 - [ ] Create configuration section in the tray application
 - [ ] Document esp32 connections
-- [ ] Support multiple machines
+- [x] Support multiple machines
 - [ ] Support Linux
 - [ ] Create modular integration to calendar (Simple and common interface to allow third-party connectors)
